@@ -2,6 +2,8 @@
 Making urls tiny since... time is relative, so since... <br>
 > This is a [bit.ly](bitly.com/) like app
 
+Check out! [Live Instance](http://ismverse.ml:7171/)
+
 #### Installation
 
 - Make sure you have [node.js](https://nodejs.org/en/) installed
