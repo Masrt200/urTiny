@@ -1,6 +1,6 @@
 ## urTiny
-Making urls tiny since... time is relative, so since...
-This is a [bit.ly](bitly.com/) like app
+Making urls tiny since... time is relative, so since... <br>
+> This is a [bit.ly](bitly.com/) like app
 
 #### Installation
 
