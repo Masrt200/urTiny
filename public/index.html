@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Masrt.sh</title>
+    <title>urTiny</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header>
-      <h1>masrt.sh -Short urls for you</h1>
+      <h1>urTiny - make others too :)</h1>
     </header>
     <main id="app">
       <form class="form" v-if="formVisible" @submit.prevent="createUrl()">
@@ -31,11 +31,11 @@
           id="slug"
           placeholder="enter a slug"
         />
-        <button type="submit" class="create">create</button>
+        <button type="submit" class="create">shrink</button>
       </form>
       <div v-if="created">
         <p class="created">
-          Your short url is: <a :href="created">{{created}}</a>
+          Check this miniscule creation out -> <a :href="created">{{created}}</a>
         </p>
       </div>
     </main>

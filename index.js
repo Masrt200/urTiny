@@ -1,55 +1,54 @@
-//import required packages
+// imports
 const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const yup = require("yup");
-const monk = require("monk");
 const rateLimit = require("express-rate-limit");
 const slowDown = require("express-slow-down");
 const { nanoid } = require("nanoid");
-
-//use dotenv for local env variables
 require("dotenv").config();
 
-//connect to db and get the 'urls' database and create a index for slug to be unique
-const db = monk(process.env.MONGOLAB_URI);
-const urls = db.get("urls");
-urls.createIndex({ slug: 1 }, { unique: true });
+// connect to db
+const { MongoClient } = require("mongodb");
+const client = new MongoClient(process.env.DB_URI);
+client.connect();
 
-//initialise express app
+// create an index for unique slug
+const db   = client.db("urTiny")    // database
+const urls = db.collection("urls"); // collection
+urls.createIndex({slug: 1}, {unique: true});
+
+// init express app
 const app = express();
 app.enable("trust proxy");
 
-//use helmet for securing the http requests by suppling various HTTP-Headers   and morgan for logging the requests easy to debug
+// helmet secures the http requests by suppling various HTTP-Headers
+// morgan logs the requests
 app.use(helmet());
 app.use(morgan("common"));
 
-//to recognise the incoming response as a json request
+// recognise incoming resp as a json obj
 app.use(express.json());
-
-// serve the static files present in directory specified
 app.use(express.static("./public"));
 
-// set the path for 404 file
-const notFoundPath = path.join(__dirname, "public/404.html");
+// path for 404 file
+const _404 = path.join(__dirname, "public/404.html");
 
-//get request to redirect to specified website according to slug
+// redirect to website as per to slug
 app.get("/:id", async (req, res, next) => {
-  const { id: slug } = req.params; //get the values from json request object
+  const { id: slug } = req.params;
   try {
-    const url = await urls.findOne({ slug }); //find the object matching the specified slug
-    if (url) {
-      return res.redirect(url.url);
-    }
-    //if not found return 404 status and respective html page
-    return res.status(404).sendFile(notFoundPath);
-  } catch (error) {
-    return res.status(404).sendFile(notFoundPath);
+    const url = await urls.findOne({ slug });
+    if (url) { return res.redirect(url.url); }
+    return res.status(404).sendFile(_404);
+  } 
+  catch (error) {
+    return res.status(404).sendFile(_404);
   }
 });
 
-//define the table schema
+// table schema for slug
 const schema = yup.object().shape({
   slug: yup
     .string()
@@ -58,68 +57,54 @@ const schema = yup.object().shape({
   url: yup.string().trim().url().required(),
 });
 
-//post req to store the slug to database
+// store the slug in db
 app.post(
   "/url",
+  // slowdown and rate-limiting
   slowDown({
-    //slowdown the site response if multiple req made within 30s
     windowMs: 30 * 1000,
-    delayAfter: 1,
+    delayAfter: 3,
     delayMs: 500,
   }),
   rateLimit({
     windowMs: 30 * 1000,
-    max: 1,
+    max: 3,
   }),
   async (req, res, next) => {
     let { slug, url } = req.body;
     try {
-      await schema.validate({
-        //validate with table schemas
-        slug,
-        url,
-      });
-      if (url.includes("masrt.sh")) {
-        throw new Error("Stop it. 🛑");
-      }
-      if (!slug) {
-        slug = nanoid(5);
-      } else {
+      // validate with table schema
+      await schema.validate({ slug, url });
+
+      if (url.includes("ismverse.ml")) { throw new Error("Have Peace!"); }
+      if (!slug) { slug = nanoid(5); } 
+      else {
         const existing = await urls.findOne({ slug });
-        if (existing) {
-          throw new Error("Slug in use. 🍔");
-        }
+        if (existing) { throw new Error("Slug already in use!"); }
       }
+
       slug = slug.toLowerCase();
-      const newUrl = {
-        url,
-        slug,
-      };
-      const created = await urls.insert(newUrl);
-      res.json(created);
-    } catch (error) {
-      next(error);
-    }
+      const newUrl = { url, slug };
+      await urls.insertOne(newUrl);
+      res.json(newUrl);
+    } 
+    catch (error) { next(error); }
   }
 );
 
 app.use((req, res, next) => {
-  res.status(404).sendFile(notFoundPath);
+  res.status(404).sendFile(_404);
 });
 
 app.use((error, req, res, next) => {
-  if (error.status) {
-    res.status(error.status);
-  } else {
-    res.status(500);
-  }
+  if (error.status) { res.status(error.status); } 
+  else { res.status(500); }
+
   res.json({
     message: error.message,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : error.stack,
+    stack: process.env.NODE_ENV === "production" ? "gg" : error.stack,
   });
 });
 
-const port = process.env.PORT || 1337;
-app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}`);
-});
+const port = process.env.PORT || 7171;
+app.listen(port, () => { console.log(`Listening at http://localhost:${port}`); });

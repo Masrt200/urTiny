@@ -1,8 +1,8 @@
 const app = new Vue({
-  //create new Vue instance and specifying the necessary details
-  el: "#app", //working with element having specified id
+  // create new Vue instance
+  el: "#app",
   data: {
-    //initialise the values
+    // init the values
     url: "",
     slug: "",
     error: "",
@@ -11,29 +11,30 @@ const app = new Vue({
   },
   methods: {
     async createUrl() {
-      //make a method to create url
+      // method to create url
       this.error = "";
       const response = await fetch("/url", {
-        //fetch reponse from the api created using POST request
+        // fetch reponse from api
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
         body: JSON.stringify({
           url: this.url,
-          slug: this.slug || undefined,
+          slug: this.slug,
         }),
       });
       if (response.ok) {
-        //if we get a response hide the form and show the short url created
+        // hide the form and show the tiny url
         const result = await response.json();
         this.formVisible = false;
-        this.created = `https://masrt-sh.herokuapp.com/${result.slug}`;
-      } else if (response.status === 429) {
-        //if we get too many requests from the same ip we send the error
-        this.error =
-          "You are sending too many requests. Try again in 30 seconds.";
-      } else {
+        this.created = `http://ismverse.ml:7171/${result.slug}`;
+      } 
+      else if (response.status === 429) {
+        // too many requests from the same ip
+        this.error = "Hey, have a cooldown for 30s!";
+      } 
+      else {
         const result = await response.json();
         this.error = result.message;
       }

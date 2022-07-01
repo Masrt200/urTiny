@@ -1,16 +1,18 @@
-# Installation
+## urTiny
+Making urls tiny since... time is relative, so since...
+This is a [bit.ly](bitly.com/) like app
 
-1.Make sure you have node.js installed <br>
-2.`git clone https://github.com/masrt200/Url-Shortener`<br> 
-3.``` npm install``` <br>
-4.1 For development:= ```npm start```<br>
-4.2 For production:=```npm run dev```<br>
+#### Installation
 
-If PORT not specific specified the application will run on **1337**
+- Make sure you have [node.js](https://nodejs.org/en/) installed
+```bash
+> git clone https://github.com/Masrt200/urTiny
+> npm install
+``` 
+- Deployment
+	- For development -  `npm run dev`
+	- For production  -  `npm start`
 
-### Note make sure you have a .env file with the enviornment variable _MOONGOLAB_URI_ set to mongodb dataabse you are connecting .
+If PORT is not specified, the application will run on port **7171**
 
-## TODO
-
-1.implement functionality for slug to be active for a specific period of time (6 hours)
-2.implement user account creation and login system
+> make sure you have a .env file with the variable *DB_URI* set to the mongodb database you are connecting to
